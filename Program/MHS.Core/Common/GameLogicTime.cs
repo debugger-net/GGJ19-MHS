@@ -93,6 +93,15 @@ namespace MHS.Core.Common
             elapsedUnits += rhs.elapsedUnits;
         }
 
+        /// <summary>
+        /// Set time as given time
+        /// </summary>
+        /// <param name="rhs">Reference time</param>
+        public void Set(GameLogicTime rhs)
+        {
+            elapsedUnits = rhs.elapsedUnits;
+        }
+
 
         #region Generators
 

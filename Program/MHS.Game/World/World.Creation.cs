@@ -9,7 +9,7 @@ namespace MHS.Game
     /// <summary>
     /// Contains all stateful objects in current session timeline world
     /// </summary>
-    internal partial class World
+    internal partial class World : Core.Interface.IWorldState
     {
         /// <summary>
         /// Make a new gameplay world

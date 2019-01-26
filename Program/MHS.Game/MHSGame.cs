@@ -42,9 +42,19 @@ namespace MHS.Game
         #region Game State Interfaces
 
         /// <summary>
+        /// World state
+        /// </summary>
+        public Core.Interface.IWorldState WorldState { get { return m_world; } }
+
+        /// <summary>
         /// Protagonist state
         /// </summary>
         public Core.Interface.IProtagonistState Protagonist { get { return m_world.Protagonist; } }
+
+        /// <summary>
+        /// Broadcasting channel state
+        /// </summary>
+        public Core.Interface.IChannelState MyChannel { get { return m_world.MyChannel; } }
 
         #endregion
 
