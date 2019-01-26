@@ -7,12 +7,17 @@ namespace MHS.Game
     /// <summary>
     /// Contains all stateful objects in current session timeline world
     /// </summary>
-    public partial class World
+    internal partial class World
     {
         /// <summary>
         /// Current world game time
         /// </summary>
         public Core.Common.GameLogicTime LogicTime { get; private set; }
+
+        /// <summary>
+        /// World meta-logic state
+        /// </summary>
+        public MetaLogicState MetaLogicState { get; private set; }
 
 
         /// <summary>

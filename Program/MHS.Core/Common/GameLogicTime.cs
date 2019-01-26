@@ -133,21 +133,21 @@ namespace MHS.Core.Common
         /// <summary>
         /// Generate a time from total hours
         /// </summary>
-        /// <param name="minutes">Initial elapsed hours</param>
+        /// <param name="hours">Initial elapsed hours</param>
         /// <returns>A time of given hours elapsed</returns>
-        public static GameLogicTime FromHours(long minutes)
+        public static GameLogicTime FromHours(long hours)
         {
-            return new GameLogicTime(minutes * 60);
+            return new GameLogicTime(hours * 60);
         }
 
         /// <summary>
         /// Generate a time from total days
         /// </summary>
-        /// <param name="minutes">Initial elapsed days</param>
+        /// <param name="days">Initial elapsed days</param>
         /// <returns>A time of given days elapsed</returns>
-        public static GameLogicTime FromDays(long minutes)
+        public static GameLogicTime FromDays(long days)
         {
-            return new GameLogicTime(minutes * 1440);
+            return new GameLogicTime(days * 1440);
         }
 
         #endregion

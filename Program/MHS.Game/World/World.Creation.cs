@@ -9,25 +9,26 @@ namespace MHS.Game
     /// <summary>
     /// Contains all stateful objects in current session timeline world
     /// </summary>
-    public partial class World
+    internal partial class World
     {
         /// <summary>
         /// Make a new gameplay world
         /// </summary>
         /// <returns>Created new world</returns>
-        public static World CreateAWholeNewWorld()
+        public static World CreateAWholeNewWorld(IGameContext gameContext)
         {
             World creatingWorld = new World();
 
             creatingWorld.LogicTime = Core.Common.GameLogicTime.StandardStarting;
+            creatingWorld.MetaLogicState = new MetaLogicState();
 
             creatingWorld.Protagonist = new Protagonist();
             creatingWorld.MyHome = new MyHome();
 
             creatingWorld.Environments = new Environments();
 
-            creatingWorld.MyChannel = new MyChannel();
-            creatingWorld.PeopleSystem = new PeopleSystem();
+            creatingWorld.MyChannel = new MyChannel(creatingWorld.Protagonist);
+            creatingWorld.PeopleSystem = new PeopleSystem(gameContext);
 
             creatingWorld.Shoppings = new Shoppings();
             creatingWorld.DeliverySystem = new DeliverySystem();

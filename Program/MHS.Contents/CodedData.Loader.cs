@@ -14,9 +14,13 @@ namespace MHS.Contents
         /// </summary>
         private void _LoadData()
         {
-
+            _LoadBroadcastingData();
         }
 
 
+        private void _LoadBroadcastingData()
+        {
+            PeopleData = new Broadcasting.People();
+        }
     }
 }

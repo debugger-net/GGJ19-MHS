@@ -66,7 +66,7 @@ namespace MHS.Game
         /// </summary>
         private void InitializeNewGame()
         {
-            m_world = World.CreateAWholeNewWorld();
+            m_world = World.CreateAWholeNewWorld(this);
         }
 
         #endregion

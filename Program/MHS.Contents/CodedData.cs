@@ -9,6 +9,8 @@ namespace MHS.Contents
     /// </summary>
     public partial class CodedData
     {
+        /// <summary>Data about people who are latent subscribers.</summary>
+        public Broadcasting.People PeopleData { get; private set; }
 
 
         /// <summary>
