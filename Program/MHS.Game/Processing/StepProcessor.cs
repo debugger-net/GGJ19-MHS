@@ -29,11 +29,15 @@ namespace MHS.Game.Processing
         /// <summary>
         /// Construct a new processor
         /// </summary>
-        public StepProcessor()
+        public StepProcessor(IGameContext gameContext)
         {
-            m_commandProcessor = new CommandProcessor();
-            m_updateProcessor = new UpdateProcessor();
+            m_gameContext = gameContext;
+
+            m_commandProcessor = new CommandProcessor(gameContext);
+            m_updateProcessor = new UpdateProcessor(gameContext);
         }
+
+        private IGameContext m_gameContext;
 
         private CommandProcessor m_commandProcessor;
         private UpdateProcessor m_updateProcessor;

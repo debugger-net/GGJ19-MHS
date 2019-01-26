@@ -19,5 +19,17 @@ namespace MHS.Game.Processing
 
 
         }
+
+
+        #region Internal
+
+        internal UpdateProcessor(IGameContext gameContext)
+        {
+            m_gameContext = gameContext;
+        }
+
+        private IGameContext m_gameContext;
+
+        #endregion
     }
 }

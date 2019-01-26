@@ -5,7 +5,7 @@ namespace MHS.Game
     /// <summary>
     /// My Home Studio Logical Game Instance Class
     /// </summary>
-    public class MHSGame
+    public class MHSGame : IGameContext
     {
         #region Creations
 
@@ -54,15 +54,17 @@ namespace MHS.Game
         /// <summary>
         /// Default constructor to initialize basic contents of the object
         /// </summary>
-        internal MHSGame()
+        private MHSGame()
         {
-            m_stepProcessor = new Processing.StepProcessor();
+            m_gameData = GameData.LoadGameData();
+
+            m_stepProcessor = new Processing.StepProcessor(this);
         }
 
         /// <summary>
         /// Initialize a New Game
         /// </summary>
-        internal void InitializeNewGame()
+        private void InitializeNewGame()
         {
             m_world = World.CreateAWholeNewWorld();
         }
@@ -72,9 +74,19 @@ namespace MHS.Game
 
         #region Game Internal
 
+        private GameData m_gameData;
+
         private World m_world;
 
         private Processing.StepProcessor m_stepProcessor;
+
+        #endregion
+
+
+        #region Context Interface
+
+        /// <summary>Game Contents Data</summary>
+        public GameData Data { get { return m_gameData; } }
 
         #endregion
     }

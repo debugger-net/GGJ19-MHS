@@ -9,5 +9,6 @@ namespace MHS.Core.Interface
     /// </summary>
     public interface IProtagonistState
     {
+        
     }
 }

@@ -22,5 +22,16 @@ namespace MHS.Game.Processing
                     return;
             }
         }
+
+        #region Internal
+
+        internal CommandProcessor(IGameContext gameContext)
+        {
+            m_gameContext = gameContext;
+        }
+
+        private IGameContext m_gameContext;
+
+        #endregion
     }
 }
