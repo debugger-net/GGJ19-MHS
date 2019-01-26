@@ -7,6 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using NAudio.Wave;
+using NAudio.Wave.SampleProviders;
+
 
 namespace MHS.Player
 {
@@ -39,6 +42,7 @@ namespace MHS.Player
             _InitializeGame();
             _InitializeCommandSystem();
             _InitializeGameUI();
+            _InitializeSoundSystem();
 
             m_gameLoopThread = new Thread(_GameLoop);
 
@@ -101,6 +105,8 @@ namespace MHS.Player
                 {
                     this.Invoke(m_gameUIUpdateFuncDelegate);
                 }
+
+                _UpdateSoundSystem();
 
                 Thread.Yield();
             }
@@ -186,6 +192,7 @@ namespace MHS.Player
 
                 m_waitingCommand = new Game.Broadcasting.StartBroadcastingCommand(null);
             }
+            _SetSoundStreamingOn();
         }
 
         private void _IssueCommand_FinishBroadcasting()
@@ -199,6 +206,7 @@ namespace MHS.Player
 
                 m_waitingCommand = new Game.Broadcasting.FinishBroadcastingCommand();
             }
+            _SetSoundStreamingOff();
         }
 
 
@@ -339,6 +347,65 @@ namespace MHS.Player
                     m_isUIUpdating = false;
                 }
             }
+        }
+
+        #endregion
+
+
+        #region Sound
+
+        private const string kSoundFilePath_Signal = "Sound/mhs_signal.wav";
+        private const string kSoundFilePath_BGM = "Sound/mhs_bgm.wav";
+
+        private WaveOutEvent m_soundDevice;
+
+        private AudioFileReader m_soundFile_signal;
+        private AudioFileReader m_soundFile_bgm;
+
+        private bool m_soundIsStreaming;
+
+
+        private void _InitializeSoundSystem()
+        {
+            m_soundDevice = new WaveOutEvent();
+
+            m_soundFile_signal = new AudioFileReader(kSoundFilePath_Signal);
+            m_soundFile_bgm = new AudioFileReader(kSoundFilePath_BGM);
+
+            m_soundIsStreaming = false;
+        }
+
+        private void _UpdateSoundSystem()
+        {
+            if (m_soundIsStreaming)
+            {
+                if (m_soundDevice.PlaybackState == PlaybackState.Stopped)
+                {
+                    m_soundFile_bgm.Position = 0;
+                    m_soundDevice.Init(m_soundFile_bgm);
+                    m_soundDevice.Play();
+                }
+            }
+        }
+
+        private void _SetSoundStreamingOn()
+        {
+            m_soundIsStreaming = true;
+
+            if (m_soundDevice.PlaybackState != PlaybackState.Stopped)
+            {
+                m_soundDevice.Stop();
+            }
+            m_soundFile_signal.Position = 0;
+            m_soundDevice.Init(m_soundFile_signal);
+            m_soundDevice.Play();
+        }
+
+        private void _SetSoundStreamingOff()
+        {
+            m_soundDevice.Stop();
+
+            m_soundIsStreaming = false;
         }
 
         #endregion
