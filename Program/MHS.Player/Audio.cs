@@ -91,8 +91,10 @@ namespace MHS.Player.Audio
     {
         public float[] AudioData { get; private set; }
         public WaveFormat WaveFormat { get; private set; }
-        public CachedSound(string audioFileName)
+        public CachedSound(string audioFileName, bool isLoop = false)
         {
+            IsLoop = isLoop;
+
             using (var audioFileReader = new AudioFileReader(audioFileName))
             {
                 WaveFormat = audioFileReader.WaveFormat;
@@ -106,6 +108,8 @@ namespace MHS.Player.Audio
                 AudioData = wholeFile.ToArray();
             }
         }
+
+        public bool IsLoop { get; private set; }
     }
 
 
@@ -125,6 +129,17 @@ namespace MHS.Player.Audio
             var samplesToCopy = Math.Min(availableSamples, count);
             Array.Copy(cachedSound.AudioData, position, buffer, offset, samplesToCopy);
             position += samplesToCopy;
+            if (cachedSound.IsLoop && position >= cachedSound.AudioData.Length)
+            {
+                position = 0;
+                count -= (int)samplesToCopy;
+                offset += (int)samplesToCopy;
+                availableSamples = cachedSound.AudioData.Length - position;
+                var newSamplesToCopy = Math.Min(availableSamples, count);
+                Array.Copy(cachedSound.AudioData, position, buffer, offset, newSamplesToCopy);
+                position += newSamplesToCopy;
+                samplesToCopy += newSamplesToCopy;
+            }
             return (int)samplesToCopy;
         }
 

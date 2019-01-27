@@ -133,6 +133,20 @@ namespace MHS.Player
                     }
                 }
             }
+            else if (frameCommand.CoarseType == Core.LogicCommand.CommandCoarseType.kBroadcasting)
+            {
+                if (stepProcessResult.commandResult.isSuccess)
+                {
+                    if (frameCommand is Game.Broadcasting.StartBroadcastingCommand)
+                    {
+                        _SetSoundStreamingOn();
+                    }
+                    else if (frameCommand is Game.Broadcasting.FinishBroadcastingCommand)
+                    {
+                        _SetSoundStreamingOff();
+                    }
+                }
+            }
 
             // Process Receive
             if (stepProcessResult.receivedItems.Count > 0)
@@ -141,6 +155,8 @@ namespace MHS.Player
                 {
                     m_inventoryUIWaitingQueue.Enqueue(new InventoryListItemEntry(currentReceivedItem));
                     WriteLog(string.Format("Item Received!! - {0}: {1}", currentReceivedItem.View.VisibleName, currentReceivedItem.View.Description));
+
+                    ++m_itemCount;
                 }
 
                 _SoundPlayReceived();
@@ -227,7 +243,6 @@ namespace MHS.Player
 
                 m_waitingCommand = new Game.Broadcasting.StartBroadcastingCommand(null);
             }
-            _SetSoundStreamingOn();
         }
 
         private void _IssueCommand_FinishBroadcasting()
@@ -241,7 +256,6 @@ namespace MHS.Player
 
                 m_waitingCommand = new Game.Broadcasting.FinishBroadcastingCommand();
             }
-            _SetSoundStreamingOff();
         }
 
         private void _IssueCommand_ShoppingPurchase(long shopId, long shopItemId)
@@ -475,21 +489,29 @@ namespace MHS.Player
         #region Sound
 
         private const string kSoundFilePath_Signal = "Sound/mhs_signal.wav";
-        private const string kSoundFilePath_BGM = "Sound/mhs_bgm.wav";
         private const string kSoundFilePath_Purchase = "Sound/mhs_sfx_purchase_01.wav";
         private const string kSoundFilePath_Received = "Sound/mhs_sfx_doorbell_02.wav";
+
+        private static readonly string[] kSoundFilePath_BGMs = new string[]
+        {
+            "Sound/mhs_bgm_level1.wav",
+            "Sound/mhs_bgm_level2.wav",
+            "Sound/mhs_bgm_level3.wav"
+        };
 
         private bool m_soundIsStreaming;
         private bool m_isPlaySignal;
         
         private Audio.AudioPlaybackEngine m_audioPlayer;
+        private object m_soundSystemLock;
 
         private Audio.CachedSound m_cachedSound_signal;
-        private Audio.CachedSound m_cachedSound_bgm1;
+        private List<Audio.CachedSound> m_cachedSound_bgms;
 
         private Audio.CachedSound m_cachedSound_purchase;
         private Audio.CachedSound m_cachedSound_received;
 
+        private Audio.CachedSound m_streamBGMSound;
         private Audio.AudioPlaybackEngine.SoundSourceHandle m_streamSoundHandle;
 
 
@@ -499,9 +521,15 @@ namespace MHS.Player
             m_isPlaySignal = false;
 
             m_audioPlayer = Audio.AudioPlaybackEngine.Instance;
+            m_soundSystemLock = new object();
 
             m_cachedSound_signal = new Audio.CachedSound(kSoundFilePath_Signal);
-            m_cachedSound_bgm1 = new Audio.CachedSound(kSoundFilePath_BGM);
+
+            m_cachedSound_bgms = new List<Audio.CachedSound>();
+            for (int i = 0; i < kSoundFilePath_BGMs.Length; ++i)
+            {
+                m_cachedSound_bgms.Add(new Audio.CachedSound(kSoundFilePath_BGMs[i], true));
+            }
 
             m_cachedSound_purchase = new Audio.CachedSound(kSoundFilePath_Purchase);
             m_cachedSound_received = new Audio.CachedSound(kSoundFilePath_Received);
@@ -512,23 +540,26 @@ namespace MHS.Player
 
         private void _UpdateSoundSystem()
         {
-            if (m_soundIsStreaming)
+            lock (m_soundSystemLock)
             {
-                if (m_isPlaySignal)
+                if (m_soundIsStreaming)
                 {
-                    if (m_streamSoundHandle.sourceProvider.IsFinished)
+                    if (m_isPlaySignal)
                     {
-                        m_audioPlayer.RemoveSoundFromMixer(m_streamSoundHandle);
-                        m_streamSoundHandle = m_audioPlayer.PlayHandledSound(m_cachedSound_bgm1);
-                        m_isPlaySignal = false;
+                        if (m_streamSoundHandle.sourceProvider.IsFinished)
+                        {
+                            m_audioPlayer.RemoveSoundFromMixer(m_streamSoundHandle);
+                            m_streamSoundHandle = m_audioPlayer.PlayHandledSound(m_streamBGMSound);
+                            m_isPlaySignal = false;
+                        }
                     }
-                }
-                else
-                {
-                    if (m_streamSoundHandle.sourceProvider.IsFinished)
+                    else
                     {
-                        m_audioPlayer.RemoveSoundFromMixer(m_streamSoundHandle);
-                        m_streamSoundHandle = m_audioPlayer.PlayHandledSound(m_cachedSound_bgm1);
+                        if (m_streamSoundHandle.sourceProvider.IsFinished)
+                        {
+                            m_audioPlayer.RemoveSoundFromMixer(m_streamSoundHandle);
+                            m_streamSoundHandle = m_audioPlayer.PlayHandledSound(m_streamBGMSound);
+                        }
                     }
                 }
             }
@@ -536,21 +567,35 @@ namespace MHS.Player
 
         private void _SetSoundStreamingOn()
         {
-            m_soundIsStreaming = true;
-            m_isPlaySignal = true;
+            int level = _GetCurrentStreamingQualityLevel();
+            if (level >= m_cachedSound_bgms.Count)
+            {
+                level = m_cachedSound_bgms.Count - 1;
+            }
 
-            m_streamSoundHandle = m_audioPlayer.PlayHandledSound(m_cachedSound_signal);
+            lock (m_soundSystemLock)
+            {
+                m_soundIsStreaming = true;
+                m_isPlaySignal = true;
+
+                m_streamBGMSound = m_cachedSound_bgms[level];
+
+                m_streamSoundHandle = m_audioPlayer.PlayHandledSound(m_cachedSound_signal);
+            }
         }
 
         private void _SetSoundStreamingOff()
         {
-            m_soundIsStreaming = false;
-
-            if (m_streamSoundHandle.insertedProvider != null)
+            lock (m_soundSystemLock)
             {
-                m_audioPlayer.RemoveSoundFromMixer(m_streamSoundHandle);
-                m_streamSoundHandle.insertedProvider = null;
-                m_streamSoundHandle.sourceProvider = null;
+                m_soundIsStreaming = false;
+
+                if (m_streamSoundHandle.insertedProvider != null)
+                {
+                    m_audioPlayer.RemoveSoundFromMixer(m_streamSoundHandle);
+                    m_streamSoundHandle.insertedProvider = null;
+                    m_streamSoundHandle.sourceProvider = null;
+                }
             }
         }
 
@@ -572,6 +617,13 @@ namespace MHS.Player
                 m_game.Shopping.Shops.First().SerialNumber,
                 m_game.Shopping.Shops.First().Catalogue.First().SerialNumber
                 );
+        }
+
+        private int m_itemCount = 0;
+        private int _GetCurrentStreamingQualityLevel()
+        {
+            // Temp Impl.
+            return m_itemCount / 2;
         }
 
 
