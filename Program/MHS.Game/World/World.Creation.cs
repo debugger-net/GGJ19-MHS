@@ -30,7 +30,7 @@ namespace MHS.Game
             creatingWorld.MyChannel = new MyChannel(creatingWorld.Protagonist);
             creatingWorld.PeopleSystem = new PeopleSystem(gameContext);
 
-            creatingWorld.Shoppings = new Shoppings();
+            creatingWorld.Shoppings = new Shoppings(gameContext);
             creatingWorld.DeliverySystem = new DeliverySystem();
 
             return creatingWorld;

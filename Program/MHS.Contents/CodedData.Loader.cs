@@ -15,12 +15,18 @@ namespace MHS.Contents
         private void _LoadData()
         {
             _LoadBroadcastingData();
+            _LoadShoppingData();
         }
 
 
         private void _LoadBroadcastingData()
         {
             PeopleData = new Broadcasting.People();
+        }
+
+        private void _LoadShoppingData()
+        {
+            ShopListData = new Shopping.ShopList();
         }
     }
 }

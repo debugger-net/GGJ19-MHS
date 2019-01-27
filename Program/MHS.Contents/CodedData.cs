@@ -12,6 +12,9 @@ namespace MHS.Contents
         /// <summary>Data about people who are latent subscribers.</summary>
         public Broadcasting.People PeopleData { get; private set; }
 
+        /// <summary>Data about shops.</summary>
+        public Shopping.ShopList ShopListData { get; private set; }
+
 
         /// <summary>
         /// Create a coded game data object

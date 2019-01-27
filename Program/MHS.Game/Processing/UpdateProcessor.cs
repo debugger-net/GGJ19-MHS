@@ -23,6 +23,9 @@ namespace MHS.Game.Processing
             PeopleSystem.UpdateEffect peopleSystemUpdateEffect = targetWorld.PeopleSystem.UpdateStep(targetWorld.MyChannel);
             targetWorld.MyChannel.ApplyPeopleResult(peopleSystemUpdateEffect);
 
+            targetWorld.Shoppings.UpdateStep(targetWorld, targetWorld.DeliverySystem);
+            targetWorld.DeliverySystem.UpdateStep(targetWorld, targetWorld.MyHome);
+
             _UpdatePaying(targetWorld);
         }
 
