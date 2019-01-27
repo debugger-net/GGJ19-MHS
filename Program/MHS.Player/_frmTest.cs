@@ -99,6 +99,8 @@ namespace MHS.Player
                     Core.LogicCommand frameCommand = _GetFrameCommand();
                     Game.Processing.StepResult stepProcessResult = m_game.ProceedStep(frameCommand);
 
+                    _ProcessFrameResultLogic(frameCommand, stepProcessResult);
+
                     m_lastUpdateTime = currentFrameTime;
                 }
 
@@ -110,6 +112,25 @@ namespace MHS.Player
                 _UpdateSoundSystem();
 
                 Thread.Yield();
+            }
+        }
+
+        private void _ProcessFrameResultLogic(Core.LogicCommand frameCommand, Game.Processing.StepResult stepProcessResult)
+        {
+            if (frameCommand.CoarseType == Core.LogicCommand.CommandCoarseType.kShopping)
+            {
+                Core.LogicCommands.ShoppingCommand shoppingCommand = frameCommand as Core.LogicCommands.ShoppingCommand;
+                if (shoppingCommand.CommandType == Core.LogicCommands.ShoppingCommandType.kBuy)
+                {
+                    if (stepProcessResult.commandResult.isSuccess)
+                    {
+                        Core.Game.Shopping.Order order = (stepProcessResult.commandResult.payloadData as Game.Shop.PurchaseCommandResult).placedOrder;
+                        Core.Game.Shopping.IShopItem purchasedItem = order.orderedShopItem;
+
+                        WriteLog(string.Format("(Order No. {0}) Purchaed \"{1}\" at {2} money.", order.serialNumber, purchasedItem.View.SellingItemName, purchasedItem.Price));
+                        _SoundPlayPurchase();
+                    }
+                }
             }
         }
 
@@ -520,8 +541,6 @@ namespace MHS.Player
                 m_game.Shopping.Shops.First().SerialNumber,
                 m_game.Shopping.Shops.First().Catalogue.First().SerialNumber
                 );
-
-            _SoundPlayPurchase();
         }
     }
 }

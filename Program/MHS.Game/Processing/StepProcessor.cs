@@ -17,12 +17,15 @@ namespace MHS.Game.Processing
         /// <returns>Step processing result</returns>
         public StepResult ProcessStep(World targetWorld, Core.LogicCommand stepCommand)
         {
-            m_commandProcessor.ApplyCommand(targetWorld, stepCommand);
+            Core.CommandResult commandResult = m_commandProcessor.ApplyCommand(targetWorld, stepCommand);
             m_updateProcessor.UpdateWorldOneStep(targetWorld);
 
             // Gather Results
 
-            return new StepResult();
+            return new StepResult()
+            {
+                commandResult = commandResult
+            };
         }
 
 

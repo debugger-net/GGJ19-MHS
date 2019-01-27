@@ -9,5 +9,6 @@ namespace MHS.Game.Processing
     /// </summary>
     public class StepResult
     {
+        public Core.CommandResult commandResult;
     }
 }
