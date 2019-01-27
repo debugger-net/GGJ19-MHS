@@ -104,13 +104,14 @@ namespace MHS.Player
                     m_lastUpdateTime = currentFrameTime;
                 }
 
-                if (!m_isUIUpdating)
+                if (!m_isUIUpdating && m_isGameRun)
                 {
-                    this.Invoke(m_gameUIUpdateFuncDelegate);
+                    this.BeginInvoke(m_gameUIUpdateFuncDelegate);
                 }
 
                 _UpdateSoundSystem();
 
+                Application.DoEvents();
                 Thread.Yield();
             }
         }
