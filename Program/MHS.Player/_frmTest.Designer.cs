@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(_frmTest));
             this.lblfTime = new System.Windows.Forms.Label();
             this.lbliCurrentTime = new System.Windows.Forms.Label();
             this.lblfSubscribers = new System.Windows.Forms.Label();
@@ -47,8 +48,8 @@
             this.grpStreaming = new System.Windows.Forms.GroupBox();
             this.grpStatus = new System.Windows.Forms.GroupBox();
             this.grpHome = new System.Windows.Forms.GroupBox();
-            this.lstMyItems = new System.Windows.Forms.ListBox();
             this.lblfItems = new System.Windows.Forms.Label();
+            this.lstMyItems = new System.Windows.Forms.ListBox();
             this.lblfGameStatus = new System.Windows.Forms.Label();
             this.txtLog = new System.Windows.Forms.TextBox();
             this.btnShopping = new System.Windows.Forms.Button();
@@ -246,15 +247,6 @@
             this.grpHome.TabStop = false;
             this.grpHome.Text = "My Home";
             // 
-            // lstMyItems
-            // 
-            this.lstMyItems.FormattingEnabled = true;
-            this.lstMyItems.ItemHeight = 24;
-            this.lstMyItems.Location = new System.Drawing.Point(16, 68);
-            this.lstMyItems.Name = "lstMyItems";
-            this.lstMyItems.Size = new System.Drawing.Size(282, 292);
-            this.lstMyItems.TabIndex = 0;
-            // 
             // lblfItems
             // 
             this.lblfItems.AutoSize = true;
@@ -263,6 +255,15 @@
             this.lblfItems.Size = new System.Drawing.Size(110, 24);
             this.lblfItems.TabIndex = 1;
             this.lblfItems.Text = "My Items:";
+            // 
+            // lstMyItems
+            // 
+            this.lstMyItems.FormattingEnabled = true;
+            this.lstMyItems.ItemHeight = 24;
+            this.lstMyItems.Location = new System.Drawing.Point(16, 68);
+            this.lstMyItems.Name = "lstMyItems";
+            this.lstMyItems.Size = new System.Drawing.Size(282, 292);
+            this.lstMyItems.TabIndex = 0;
             // 
             // lblfGameStatus
             // 
@@ -310,9 +311,10 @@
             this.Controls.Add(this.lbliGameSpeed);
             this.Controls.Add(this.lbliCurrentTime);
             this.Controls.Add(this.lblfTime);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;
             this.Name = "_frmTest";
-            this.Text = "TEST :: My Home Studio";
+            this.Text = "My Home Studio";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this._frmTest_FormClosing);
             this.Load += new System.EventHandler(this._frmTest_Load);
             this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this._frmTest_KeyPress);
