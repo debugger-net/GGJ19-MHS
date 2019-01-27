@@ -133,6 +133,18 @@ namespace MHS.Player
                     }
                 }
             }
+
+            // Process Receive
+            if (stepProcessResult.receivedItems.Count > 0)
+            {
+                foreach (Core.Game.Item currentReceivedItem in stepProcessResult.receivedItems)
+                {
+                    m_inventoryUIWaitingQueue.Enqueue(new InventoryListItemEntry(currentReceivedItem));
+                    WriteLog(string.Format("Item Received!! - {0}: {1}", currentReceivedItem.View.VisibleName, currentReceivedItem.View.Description));
+                }
+
+                _SoundPlayReceived();
+            }
         }
 
         private void _GameSpeedIncrease()
@@ -291,6 +303,8 @@ namespace MHS.Player
         private int m_lastShownMental;
         private bool m_lastShownIsStreaming;
 
+        private ConcurrentQueue<InventoryListItemEntry> m_inventoryUIWaitingQueue;
+
 
         private Color m_kColorStreaming = Color.FromArgb(128, 255, 128);
         private const string m_kTextMessageStreaming = "On Streaming";
@@ -311,6 +325,8 @@ namespace MHS.Player
             lbliStreamingStatus.Text = m_kTextMessageNoStreaming;
             lbliStreamingStatus.BackColor = m_kColorNoStreaming;
             m_lastShownIsStreaming = false;
+
+            m_inventoryUIWaitingQueue = new ConcurrentQueue<InventoryListItemEntry>();
 
             _InitializeLogSystem();
         }
@@ -379,6 +395,12 @@ namespace MHS.Player
                         lbliStreamingStatus.BackColor = m_kColorNoStreaming;
                     }
                     m_lastShownIsStreaming = isStreaming;
+                }
+
+                InventoryListItemEntry queuedItem;
+                while (m_inventoryUIWaitingQueue.TryDequeue(out queuedItem))
+                {
+                    lstMyItems.Items.Add(queuedItem);
                 }
             }
             finally
@@ -454,7 +476,8 @@ namespace MHS.Player
 
         private const string kSoundFilePath_Signal = "Sound/mhs_signal.wav";
         private const string kSoundFilePath_BGM = "Sound/mhs_bgm.wav";
-        private const string kSoundFilePath_Purchase = "Sound/mhs_sfx_purchase_01.wav"; 
+        private const string kSoundFilePath_Purchase = "Sound/mhs_sfx_purchase_01.wav";
+        private const string kSoundFilePath_Received = "Sound/mhs_sfx_doorbell_02.wav";
 
         private bool m_soundIsStreaming;
         private bool m_isPlaySignal;
@@ -465,6 +488,7 @@ namespace MHS.Player
         private Audio.CachedSound m_cachedSound_bgm1;
 
         private Audio.CachedSound m_cachedSound_purchase;
+        private Audio.CachedSound m_cachedSound_received;
 
         private Audio.AudioPlaybackEngine.SoundSourceHandle m_streamSoundHandle;
 
@@ -480,6 +504,7 @@ namespace MHS.Player
             m_cachedSound_bgm1 = new Audio.CachedSound(kSoundFilePath_BGM);
 
             m_cachedSound_purchase = new Audio.CachedSound(kSoundFilePath_Purchase);
+            m_cachedSound_received = new Audio.CachedSound(kSoundFilePath_Received);
 
             m_streamSoundHandle.insertedProvider = null;
             m_streamSoundHandle.sourceProvider = null;
@@ -534,6 +559,11 @@ namespace MHS.Player
             m_audioPlayer.PlaySound(m_cachedSound_purchase);
         }
 
+        private void _SoundPlayReceived()
+        {
+            m_audioPlayer.PlaySound(m_cachedSound_received);
+        }
+
         #endregion
 
         private void btnShopping_Click(object sender, EventArgs e)
@@ -542,6 +572,22 @@ namespace MHS.Player
                 m_game.Shopping.Shops.First().SerialNumber,
                 m_game.Shopping.Shops.First().Catalogue.First().SerialNumber
                 );
+        }
+
+
+        internal class InventoryListItemEntry
+        {
+            public InventoryListItemEntry(Core.Game.Item itemEntry)
+            {
+                m_item = itemEntry;
+            }
+
+            private Core.Game.Item m_item;
+
+            public override string ToString()
+            {
+                return string.Format("({0}) {1}", m_item.serialNumber, m_item.View.SummaryString);
+            }
         }
     }
 }
