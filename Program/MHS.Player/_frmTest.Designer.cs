@@ -292,6 +292,7 @@
             this.btnShopping.TabIndex = 21;
             this.btnShopping.Text = "Let\'s Shopping";
             this.btnShopping.UseVisualStyleBackColor = true;
+            this.btnShopping.Click += new System.EventHandler(this.btnShopping_Click);
             // 
             // _frmTest
             // 

@@ -56,6 +56,11 @@ namespace MHS.Game
         /// </summary>
         public Core.Interface.IChannelState MyChannel { get { return m_world.MyChannel; } }
 
+        /// <summary>
+        /// Shopping system state
+        /// </summary>
+        public Core.Interface.IShoppingState Shopping { get { return m_world.Shoppings; } }
+
         #endregion
 
 

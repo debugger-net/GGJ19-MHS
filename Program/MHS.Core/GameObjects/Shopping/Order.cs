@@ -30,7 +30,7 @@ namespace MHS.Core.Game.Shopping
         {
             serialNumber = s_IssueSerialNumber();
             orderState = OrderState.kPlaced;
-            placedTime = time;
+            placedTime = new Common.GameLogicTime(time.elapsedUnits);
 
             orderedShopItem = orderedItem;
             orderItem = null;

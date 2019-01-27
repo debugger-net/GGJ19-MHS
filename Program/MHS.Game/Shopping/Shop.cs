@@ -42,7 +42,7 @@ namespace MHS.Game.Shop
         {
             get
             {
-                return null;
+                return m_sellingItems;
             }
         }
 
@@ -53,7 +53,7 @@ namespace MHS.Game.Shop
         {
             get
             {
-                return null;
+                return m_sellingItems;
             }
         }
 
@@ -99,13 +99,18 @@ namespace MHS.Game.Shop
 
             if (isSendingTime)
             {
-                foreach (Core.Game.Shopping.Order currentOrder in m_processingOrders)
+                foreach (Core.Game.Shopping.Order currentOrder in sendingOrders)
                 {
-                    currentOrder.orderState = Core.Game.Shopping.OrderState.kDelivering;
-                    // deliverySystem send
+                    deliverySystem.RequestDeliver(world, currentOrder);
                     m_processingOrders.Remove(currentOrder);
                 }
             }
+        }
+
+
+        public void Order(Core.Game.Shopping.Order order)
+        {
+            m_processingOrders.Add(order);
         }
 
 

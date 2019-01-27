@@ -26,6 +26,17 @@ namespace MHS.Game
 
         private HashSet<DayOfWeek> m_workDays;
 
+        public void RequestDeliver(World world, Core.Game.Shopping.Order deliveringOrder)
+        {
+            Shop.Delivery delivery = new Shop.Delivery();
+            delivery.deliveryingOrder = deliveringOrder;
+            delivery.deliveryDate = Core.Common.GameLogicTime.FromDays(world.LogicTime.TotalDays + 1);
+
+            deliveringOrder.orderState = Core.Game.Shopping.OrderState.kDelivering;
+
+            m_processingDeliveries.Add(delivery);
+        }
+
         public void UpdateStep(World world, MyHome targetHome)
         {
             bool isDeliveryTime = false;

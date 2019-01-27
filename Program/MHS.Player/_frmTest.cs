@@ -210,6 +210,22 @@ namespace MHS.Player
             _SetSoundStreamingOff();
         }
 
+        private void _IssueCommand_ShoppingPurchase(long shopId, long shopItemId)
+        {
+            lock (m_commandLock)
+            {
+                if (m_waitingCommand != null)
+                {
+                    return;
+                }
+
+                m_waitingCommand = new Core.LogicCommands.ShoppingPurchaseCommand()
+                {
+                    purchasingShopId = shopId, purchasingItemId = shopItemId
+                };
+            }
+        }
+
 
         #region Form Interaction
 
@@ -469,5 +485,13 @@ namespace MHS.Player
         }
 
         #endregion
+
+        private void btnShopping_Click(object sender, EventArgs e)
+        {
+            _IssueCommand_ShoppingPurchase(
+                m_game.Shopping.Shops.First().SerialNumber,
+                m_game.Shopping.Shops.First().Catalogue.First().SerialNumber
+                );
+        }
     }
 }

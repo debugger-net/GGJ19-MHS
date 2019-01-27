@@ -25,6 +25,10 @@ namespace MHS.Game.Processing
                 case Core.LogicCommand.CommandCoarseType.kBroadcasting:
                     Broadcasting.BroadcastingCommand broadcastingCommand = stepCommand as Broadcasting.BroadcastingCommand;
                     return broadcastingCommand.DoCommand(targetWorld);
+
+                case Core.LogicCommand.CommandCoarseType.kShopping:
+                    Core.LogicCommands.ShoppingCommand shoppingCommand = stepCommand as Core.LogicCommands.ShoppingCommand;
+                    return m_shoppingCommandProcessor.ProcessCommand(targetWorld, shoppingCommand);
             }
 
             return new Core.CommandResult(false, new CommandFailReason_CannotProcess());
@@ -36,9 +40,13 @@ namespace MHS.Game.Processing
         internal CommandProcessor(IGameContext gameContext)
         {
             m_gameContext = gameContext;
+
+            m_shoppingCommandProcessor = new Shop.ShoppingCommandProcessor();
         }
 
         private IGameContext m_gameContext;
+
+        private Shop.ShoppingCommandProcessor m_shoppingCommandProcessor;
 
         #endregion
     }
