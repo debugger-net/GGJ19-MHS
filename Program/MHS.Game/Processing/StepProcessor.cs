@@ -21,10 +21,12 @@ namespace MHS.Game.Processing
             m_updateProcessor.UpdateWorldOneStep(targetWorld);
 
             // Gather Results
+            List<Core.Game.Item> receivedItems = targetWorld.MyHome.RefreshAndGetArrivedItems();
 
             return new StepResult()
             {
-                commandResult = commandResult
+                commandResult = commandResult, 
+                receivedItems = receivedItems
             };
         }
 

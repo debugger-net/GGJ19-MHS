@@ -72,7 +72,7 @@ namespace MHS.Game
                 foreach (Shop.Delivery currentDelivery in finishedDelivery)
                 {
                     currentDelivery.deliveryingOrder.orderState = Core.Game.Shopping.OrderState.kDelivered;
-                    //Add Item to Inventory
+                    world.MyHome.DeliverItem(currentDelivery.deliveryingOrder.orderItem);
                     m_processingDeliveries.Remove(currentDelivery);
                 }
             }

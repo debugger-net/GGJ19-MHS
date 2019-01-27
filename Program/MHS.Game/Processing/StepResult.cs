@@ -10,5 +10,7 @@ namespace MHS.Game.Processing
     public class StepResult
     {
         public Core.CommandResult commandResult;
+
+        public List<Core.Game.Item> receivedItems;
     }
 }
