@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
@@ -272,6 +273,8 @@ namespace MHS.Player
             lbliStreamingStatus.Text = m_kTextMessageNoStreaming;
             lbliStreamingStatus.BackColor = m_kColorNoStreaming;
             m_lastShownIsStreaming = false;
+
+            _InitializeLogSystem();
         }
 
         private void _GameUIUpdateFunc()
@@ -348,6 +351,63 @@ namespace MHS.Player
                 }
             }
         }
+
+
+        #region Logs
+
+        private ConcurrentQueue<string> m_logQueue;
+
+        private bool m_isLogUpdating;
+        private object m_logUpdateStateLock;
+
+        private GameUIUpdateFunc m_gameLogUpdateFuncDelegate;
+
+        private void _InitializeLogSystem()
+        {
+            m_logQueue = new ConcurrentQueue<string>();
+
+            m_isLogUpdating = false;
+            m_logUpdateStateLock = new object();
+
+            m_gameLogUpdateFuncDelegate = new GameUIUpdateFunc(_LogUpdateFunc);
+        }
+
+        private void _LogUpdateFunc()
+        {
+            lock (m_logUpdateStateLock)
+            {
+                if (m_isLogUpdating)
+                {
+                    return;
+                }
+
+                m_isLogUpdating = true;
+            }
+
+            string currentLog = null;
+            while (m_logQueue.TryDequeue(out currentLog))
+            {
+                txtLog.AppendText(Environment.NewLine);
+                txtLog.AppendText(currentLog);
+            }
+
+            lock (m_logUpdateStateLock)
+            {
+                m_isLogUpdating = false;
+            }
+        }
+
+        /// <summary>
+        /// Write Game Log
+        /// </summary>
+        /// <param name="logString">Log to write</param>
+        public void WriteLog(string logString)
+        {
+            m_logQueue.Enqueue(logString);
+            this.Invoke(m_gameLogUpdateFuncDelegate);
+        }
+
+        #endregion
 
         #endregion
 
