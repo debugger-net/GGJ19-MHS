@@ -432,34 +432,57 @@ namespace MHS.Player
 
         private const string kSoundFilePath_Signal = "Sound/mhs_signal.wav";
         private const string kSoundFilePath_BGM = "Sound/mhs_bgm.wav";
-
-        private WaveOutEvent m_soundDevice;
-
-        private AudioFileReader m_soundFile_signal;
-        private AudioFileReader m_soundFile_bgm;
+        private const string kSoundFilePath_Purchase = "Sound/mhs_sfx_purchase_01.wav"; 
 
         private bool m_soundIsStreaming;
+        private bool m_isPlaySignal;
+        
+        private Audio.AudioPlaybackEngine m_audioPlayer;
+
+        private Audio.CachedSound m_cachedSound_signal;
+        private Audio.CachedSound m_cachedSound_bgm1;
+
+        private Audio.CachedSound m_cachedSound_purchase;
+
+        private Audio.AudioPlaybackEngine.SoundSourceHandle m_streamSoundHandle;
 
 
         private void _InitializeSoundSystem()
         {
-            m_soundDevice = new WaveOutEvent();
-
-            m_soundFile_signal = new AudioFileReader(kSoundFilePath_Signal);
-            m_soundFile_bgm = new AudioFileReader(kSoundFilePath_BGM);
-
             m_soundIsStreaming = false;
+            m_isPlaySignal = false;
+
+            m_audioPlayer = Audio.AudioPlaybackEngine.Instance;
+
+            m_cachedSound_signal = new Audio.CachedSound(kSoundFilePath_Signal);
+            m_cachedSound_bgm1 = new Audio.CachedSound(kSoundFilePath_BGM);
+
+            m_cachedSound_purchase = new Audio.CachedSound(kSoundFilePath_Purchase);
+
+            m_streamSoundHandle.insertedProvider = null;
+            m_streamSoundHandle.sourceProvider = null;
         }
 
         private void _UpdateSoundSystem()
         {
             if (m_soundIsStreaming)
             {
-                if (m_soundDevice.PlaybackState == PlaybackState.Stopped)
+                if (m_isPlaySignal)
                 {
-                    m_soundFile_bgm.Position = 0;
-                    m_soundDevice.Init(m_soundFile_bgm);
-                    m_soundDevice.Play();
+                    if (m_streamSoundHandle.sourceProvider.IsFinished)
+                    {
+                        m_audioPlayer.RemoveSoundFromMixer(m_streamSoundHandle);
+                        m_streamSoundHandle = m_audioPlayer.PlayHandledSound(m_cachedSound_bgm1);
+                        m_isPlaySignal = false;
+                    }
+                }
+                else
+                {
+                    if (m_streamSoundHandle.sourceProvider.IsFinished)
+                    {
+                        m_audioPlayer.RemoveSoundFromMixer(m_streamSoundHandle);
+                        m_streamSoundHandle = m_audioPlayer.PlayHandledSound(m_cachedSound_bgm1);
+                    }
                 }
             }
         }
@@ -467,21 +490,26 @@ namespace MHS.Player
         private void _SetSoundStreamingOn()
         {
             m_soundIsStreaming = true;
+            m_isPlaySignal = true;
 
-            if (m_soundDevice.PlaybackState != PlaybackState.Stopped)
-            {
-                m_soundDevice.Stop();
-            }
-            m_soundFile_signal.Position = 0;
-            m_soundDevice.Init(m_soundFile_signal);
-            m_soundDevice.Play();
+            m_streamSoundHandle = m_audioPlayer.PlayHandledSound(m_cachedSound_signal);
         }
 
         private void _SetSoundStreamingOff()
         {
-            m_soundDevice.Stop();
-
             m_soundIsStreaming = false;
+
+            if (m_streamSoundHandle.insertedProvider != null)
+            {
+                m_audioPlayer.RemoveSoundFromMixer(m_streamSoundHandle);
+                m_streamSoundHandle.insertedProvider = null;
+                m_streamSoundHandle.sourceProvider = null;
+            }
+        }
+
+        private void _SoundPlayPurchase()
+        {
+            m_audioPlayer.PlaySound(m_cachedSound_purchase);
         }
 
         #endregion
@@ -492,6 +520,8 @@ namespace MHS.Player
                 m_game.Shopping.Shops.First().SerialNumber,
                 m_game.Shopping.Shops.First().Catalogue.First().SerialNumber
                 );
+
+            _SoundPlayPurchase();
         }
     }
 }
